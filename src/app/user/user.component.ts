@@ -1,5 +1,19 @@
-import { Component } from '@angular/core';
-import { DUMMY_USERS } from '../dummy-users';
+import {
+  Component,
+  computed,
+  EventEmitter,
+  Input,
+  input,
+  Output,
+  signal,
+  output,
+} from '@angular/core';
+
+interface User {
+  id: string;
+  avatar: string;
+  name: string;
+}
 
 @Component({
   selector: 'app-user',
@@ -9,9 +23,30 @@ import { DUMMY_USERS } from '../dummy-users';
   styleUrl: './user.component.css',
 })
 export class UserComponent {
-  selectedUser = DUMMY_USERS[0];
+  // @Input({ required: true }) id!: string;
+  // @Input({ required: true }) avatar!: string;
+  // @Input({ required: true }) name!: string;
+  @Input({ required: true }) user!: User;
+  @Output() select = new EventEmitter<string>();
 
   get imagePath() {
-    return 'assets/users/' + this.selectedUser.avatar;
+    return 'assets/users/' + this.user.avatar;
+  }
+
+  // avatar = input.required<string>();
+  // name = input.required<string>();
+  // select = output<string>();
+
+  // imagePath = computed(() => {'assets/users/' + this.avatar()});
+
+  // selectedUser = signal(DUMMY_USERS[0]);
+
+  // imagePath = computed(() => 'assets/users/' + this.selectedUser().avatar);
+  // get imagePath() {
+  //   return 'assets/users/' + this.selectedUser().avatar;
+  // }
+
+  onSelectUser() {
+    this.select.emit(this.user.id);
   }
 }

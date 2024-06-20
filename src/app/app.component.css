@@ -24,6 +24,16 @@ main {
   gap: 2rem;
 }
 
+ul {
+  list-style: none;
+  margin-block-start: 0;
+  padding-inline-start: 0;
+}
+
+li {
+  margin-bottom: 5px;
+}
+
 #users {
   list-style: none;
   margin: 0;
