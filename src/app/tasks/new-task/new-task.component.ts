@@ -1,50 +1,48 @@
-import {
-  Component,
-  EventEmitter,
-  inject,
-  Input,
-  Output,
-  signal,
-} from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CanDeactivateFn, Router, RouterLink } from '@angular/router';
+
 import { TasksService } from '../tasks.service';
 
 @Component({
   selector: 'app-new-task',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './new-task.component.html',
   styleUrl: './new-task.component.css',
 })
 export class NewTaskComponent {
-  @Input({ required: true }) userId!: string;
-  @Output() close = new EventEmitter<void>();
-
-  enteredTitle = '';
-  enteredSummary = '';
-  enteredDate = '';
-
+  userId = input.required<string>();
+  enteredTitle = signal('');
+  enteredSummary = signal('');
+  enteredDate = signal('');
+  submitted = false;
   private tasksService = inject(TasksService);
-
-  // Using Signal
-  // enteredTitle = signal('');
-  // enteredSummary = signal('');
-  // enteredDate = signal('');
+  private router = inject(Router);
 
   onSubmit() {
     this.tasksService.addTask(
       {
-        title: this.enteredTitle,
-        summary: this.enteredSummary,
-        dueDate: this.enteredDate,
+        title: this.enteredTitle(),
+        summary: this.enteredSummary(),
+        date: this.enteredDate(),
       },
-      this.userId
+      this.userId()
     );
+    this.submitted = true;
 
-    this.close.emit();
+    this.router.navigate(['/users', this.userId(), 'tasks'], {
+      replaceUrl: true,
+    });
   }
+}
 
-  onCancel() {
-    this.close.emit();
+export const canLeaveEditPage: CanDeactivateFn<NewTaskComponent> = (component) => {
+  if (component.submitted) {
+    return true;
   }
+  if (component.enteredTitle() || component.enteredDate() || component.enteredSummary()) {
+    return window.confirm('Do you really want to leave? You will lose the entered data.')
+  }
+  return true;
 }
