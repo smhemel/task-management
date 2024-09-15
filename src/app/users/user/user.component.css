@@ -1,4 +1,10 @@
-button {
+div {
+  border-radius: 6px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+a {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -11,11 +17,12 @@ button {
   width: 100%;
   min-width: 10rem;
   text-align: left;
+  text-decoration: none;
 }
 
-button:hover,
-button:active,
-.active {
+a:hover,
+a:active,
+.selected {
   background-color: #9965dd;
   color: #150722;
 }
