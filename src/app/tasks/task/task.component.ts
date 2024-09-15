@@ -1,29 +1,30 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { CardComponent } from '../../shared/card/card.component';
+import { Component, inject, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { TasksService } from '../tasks.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
-interface Task {
-  id: string;
-  userId: string;
-  title: string;
-  summary: string;
-  dueDate: string;
-}
+import { type Task } from './task.model';
+import { CardComponent } from '../../shared/card/card.component';
+import { TasksService } from '../tasks.service';
 
 @Component({
   selector: 'app-task',
   standalone: true,
   templateUrl: './task.component.html',
   styleUrl: './task.component.css',
-  imports: [CardComponent, DatePipe],
+  imports: [DatePipe, CardComponent],
 })
 export class TaskComponent {
-  @Input({ required: true }) task!: Task;
-
+  task = input.required<Task>();
   private tasksService = inject(TasksService);
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
 
-  onCompleteTask() {
-    this.tasksService.removeTask(this.task.id);
+  onComplete() {
+    this.tasksService.removeTask(this.task().id);
+    this.router.navigate(['./'], {
+      relativeTo: this.activatedRoute,
+      onSameUrlNavigation: 'reload',
+      queryParamsHandling: 'preserve',
+    });
   }
 }

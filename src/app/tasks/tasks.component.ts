@@ -1,32 +1,44 @@
-import { Component, inject, Input } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+} from '@angular/core';
+import { ResolveFn, RouterLink } from '@angular/router';
+
 import { TaskComponent } from './task/task.component';
-import { NewTaskComponent } from './new-task/new-task.component';
 import { TasksService } from './tasks.service';
+import { Task } from './task/task.model';
 
 @Component({
   selector: 'app-tasks',
   standalone: true,
   templateUrl: './tasks.component.html',
   styleUrl: './tasks.component.css',
-  imports: [TaskComponent, NewTaskComponent],
+  imports: [TaskComponent, RouterLink],
 })
 export class TasksComponent {
-  @Input({ required: true }) userId!: string;
-  @Input() name?: string;
-
-  private tasksService = inject(TasksService);
-
-  isAddingTask: boolean = false;
-
-  get selectedUserTasks() {
-    return this.tasksService.getUserTasks(this.userId);
-  }
-
-  onAddingTask() {
-    this.isAddingTask = true;
-  }
-
-  onCloseAddTask() {
-    this.isAddingTask = false;
-  }
+  userTasks = input.required<Task[]>();
+  userId = input.required<string>();
+  order = input<'asc' | 'desc' | undefined>();
 }
+
+export const resolveUserTasks: ResolveFn<Task[]> = (
+  activatedRouteSnapshot,
+  routerState
+) => {
+  const order = activatedRouteSnapshot.queryParams['order'];
+  const tasksService = inject(TasksService);
+  const tasks = tasksService
+    .allTasks()
+    .filter(
+      (task) => task.userId === activatedRouteSnapshot.paramMap.get('userId')
+    );
+
+  if (order && order === 'asc') {
+    tasks.sort((a, b) => (a.id > b.id ? 1 : -1));
+  } else {
+    tasks.sort((a, b) => (a.id > b.id ? -1 : 1));
+  }
+
+  return tasks.length ? tasks : [];
+};
